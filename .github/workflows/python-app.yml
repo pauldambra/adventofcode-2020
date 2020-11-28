@@ -26,6 +26,7 @@ jobs:
     - name: Test
       run: |
         make test
+    - name: Report
       uses: check-run-reporter/action@v2.0.0
       # always run, otherwise you'll only see results for passing builds
       if: ${{ always() }}
