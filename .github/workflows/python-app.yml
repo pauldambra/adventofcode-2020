@@ -22,8 +22,7 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        sudo apt install pipenv
-        pipenv install
+        pip install pipenv
     - name: Lint
       run: |
         # stop the build if there are Python syntax errors or undefined names
