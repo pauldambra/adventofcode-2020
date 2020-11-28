@@ -8,7 +8,7 @@ class TestStringMethods(unittest.TestCase):
 
     def test_isupper(self):
         self.assertTrue('FOO'.isupper())
-        self.assertFalse('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
 
     def test_split(self):
         s = 'hello world'
@@ -20,3 +20,4 @@ class TestStringMethods(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    
