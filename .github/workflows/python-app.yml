@@ -27,8 +27,8 @@ jobs:
       run: |
         make test
       uses: check-run-reporter/action@v2.0.0
-        # always run, otherwise you'll only see results for passing builds
-        if: ${{ always() }}
-        with:
-          token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
-          report: 'nosetests.xml'
+      # always run, otherwise you'll only see results for passing builds
+      if: ${{ always() }}
+      with:
+        token: ${{ secrets.CHECK_RUN_REPORTER_TOKEN }}
+        report: 'nosetests.xml'
