@@ -4,8 +4,8 @@ from itertools import combinations
 
 def combination_that_sums_2020(ns, length):
     candidates = list(combinations(ns, length))
-    xs = [combination for combination in candidates if sum(
-        combination) == 2020]
+    xs = [combination for combination in candidates
+          if sum(combination) == 2020]
     return xs[0]
 
 
