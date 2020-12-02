@@ -6,7 +6,10 @@ def ruleFrom(s):
     x = s.split(":")[0].split(" ")
     letter = x[1]
     counts = x[0].split('-')
-    pattern = f"^(?:[^{letter}]*[{letter}]){{{counts[0]},{counts[1]}}}[^{letter}]*$"
+    pattern = (
+        f"^(?:[^{letter}]*[{letter}]){{{counts[0]},{counts[1]}}}"
+        f"[^{letter}]*$"
+    )
     try:
         rule = re.compile(pattern)
     except Exception:
@@ -125,7 +128,7 @@ class DayTwoTests(unittest.TestCase):
         policyExamples = read_from_file('puzzle_input.txt')
         validPasswords = checkPasswordValidityPartTwo(policyExamples)
         self.assertLess(len(validPasswords), 786)
-        self.assertEqual(len(validPasswords), 0)
+        self.assertEqual(len(validPasswords), 558)
 
 
 if __name__ == '__main__':
