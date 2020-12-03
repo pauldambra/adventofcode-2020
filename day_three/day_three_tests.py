@@ -1,5 +1,7 @@
 import unittest
 from dataclasses import dataclass
+from functools import reduce
+import operator
 
 
 @dataclass
@@ -16,31 +18,28 @@ def read(x, y, map_rows):
     else:
         wrapped_index = x % len(map_rows[0])
         map_row = map_rows[y]
-        print({
-            'x': x,
-            'y': y,
-            'wrapped_index': wrapped_index,
-            'num_rows': len(map_rows),
-            'width': len(map_rows[0]),
-            'map_row': map_row
-        })
         return CoordinateLookup(True, x, y, map_row[wrapped_index])
 
 
-def walk_the_map(map):
+def walk_the_map(map, x_step=3, y_step=1):
     encountered = []
     still_within_map = True
     x = 0
     y = 0
     while still_within_map:
-        x += 3
-        y += 1
+        x += x_step
+        y += y_step
         next = read(x, y, map)
         if (next.within_map):
             encountered.append(next)
         still_within_map = next.within_map
 
     return encountered
+
+
+def count_trees_encountered(map, x_step, y_step):
+    map_encounters = walk_the_map(map, x_step, y_step)
+    return sum(1 for x in map_encounters if x.encountered == "#")
 
 
 class DayThreeTests(unittest.TestCase):
@@ -109,9 +108,48 @@ class DayThreeTests(unittest.TestCase):
         with open('puzzle_input.txt') as content:
             map = [line.rstrip() for line in content]
         map_encounters = walk_the_map(map)
+        trees_encountered = sum(
+            1 for x in map_encounters if x.encountered == "#")
         self.assertEqual(
-            sum(1 for x in map_encounters if x.encountered == "#"),
+            trees_encountered,
             292)
+
+    def test_example_part_two(self):
+        map = ["..##.......",
+               "#...#...#..",
+               ".#....#..#.",
+               "..#.#...#.#",
+               ".#...##..#.",
+               "..#.##.....",
+               ".#.#.#....#",
+               ".#........#",
+               "#.##...#...",
+               "#...##....#",
+               ".#..#...#.#"]
+        different_slopes = [
+            count_trees_encountered(map, 1, 1),
+            count_trees_encountered(map, 3, 1),
+            count_trees_encountered(map, 5, 1),
+            count_trees_encountered(map, 7, 1),
+            count_trees_encountered(map, 1, 2),
+        ]
+        self.assertEqual(
+            different_slopes,
+            [2, 7, 3, 4, 2])
+        self.assertEqual(reduce(operator.mul, different_slopes), 336)
+
+    def test_puzzle_input_part_two(self):
+        with open('puzzle_input.txt') as content:
+            map = [line.rstrip() for line in content]
+        different_slopes = [
+            count_trees_encountered(map, 1, 1),
+            count_trees_encountered(map, 3, 1),
+            count_trees_encountered(map, 5, 1),
+            count_trees_encountered(map, 7, 1),
+            count_trees_encountered(map, 1, 2),
+        ]
+
+        self.assertEqual(reduce(operator.mul, different_slopes), 9354744432)
 
 
 if __name__ == '__main__':
