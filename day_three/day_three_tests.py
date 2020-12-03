@@ -88,6 +88,31 @@ class DayThreeTests(unittest.TestCase):
 
         [self.assertEqual(s.encountered, 'x') for s in map_encounters]
 
+    def test_example_input(self):
+        map = ["..##.......",
+               "#...#...#..",
+               ".#....#..#.",
+               "..#.#...#.#",
+               ".#...##..#.",
+               "..#.##.....",
+               ".#.#.#....#",
+               ".#........#",
+               "#.##...#...",
+               "#...##....#",
+               ".#..#...#.#"]
+        map_encounters = walk_the_map(map)
+        self.assertEqual(
+            sum(1 for x in map_encounters if x.encountered == "#"),
+            7)
+
+    def test_puzzle_input(self):
+        with open('puzzle_input.txt') as content:
+            map = [line.rstrip() for line in content]
+        map_encounters = walk_the_map(map)
+        self.assertEqual(
+            sum(1 for x in map_encounters if x.encountered == "#"),
+            292)
+
 
 if __name__ == '__main__':
     unittest.main()
