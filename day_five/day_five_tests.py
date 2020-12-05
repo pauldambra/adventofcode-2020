@@ -1,6 +1,46 @@
 import unittest
 import math
 import os
+from dataclasses import dataclass
+
+
+@dataclass
+class Searcher:
+    level: int
+    start: int
+    end: int
+    a_key: str
+    b_key: str
+
+    def search(self, search_string):
+        if self.end == self.start:
+            return self.start
+        else:
+            try:
+                search_key = search_string[self.level]
+            except IndexError:
+                raise IndexError(
+                    f"""cannot get index {self.evel} from {search_string}.
+                     currently start: {self.start} and end: {self.end}""")
+
+            next_level = self.level + 1
+
+            diff = math.floor((self.end - self.start)/2)
+            if search_key == self.a_key:
+                end = self.start + diff
+                next_searcher = Searcher(
+                    next_level, self.start, end, self.a_key, self.b_key)
+
+            elif search_key == self.b_key:
+                start = self.start + diff + 1
+                next_searcher = Searcher(
+                    next_level, start, self.end, self.a_key, self.b_key)
+
+            else:
+                raise ValueError(
+                    f"at level {self.level} cannot use {search_key}")
+
+            return next_searcher.search(search_string)
 
 
 def get_puzzle_input_path():
@@ -8,55 +48,13 @@ def get_puzzle_input_path():
     return os.path.join(dirname, 'puzzle_input.txt')
 
 
-def search_column(search_string, level=7, start=0, end=7):
-    try:
-        search_key = search_string[level]
-    except IndexError:
-        raise IndexError(f"cannot get index {level} from {search_string}")
-
-    if end - start == 1:
-        if search_key == "L":
-            return start
-        elif search_key == "R":
-            return end
-        else:
-            raise ValueError(f"at level {level} cannot use {search_key}")
-    else:
-        diff = math.floor((end - start)/2)
-        if search_key == "L":
-            return search_column(search_string, level + 1, start, start + diff)
-        elif search_key == "R":
-            return search_column(search_string, level + 1, start + diff + 1, end)
-        else:
-            raise ValueError(f"at level {level} cannot use {search_key}")
-
-
-def search_row(search_string, level=0, start=0, end=127):
-    try:
-        search_key = search_string[level]
-    except IndexError:
-        raise IndexError(f"cannot get index {level} from {search_string}")
-
-    if end - start == 1:
-        if search_key == "F":
-            return start
-        elif search_key == "B":
-            return end
-        else:
-            raise ValueError(f"at level {level} cannot use {search_key}")
-    else:
-        diff = math.floor((end - start)/2)
-        if search_key == "F":
-            return search_row(search_string, level + 1, start, start + diff)
-        elif search_key == "B":
-            return search_row(search_string, level + 1, start + diff + 1, end)
-        else:
-            raise ValueError(f"at level {level} cannot use {search_key}")
+column_searcher = Searcher(7, 0, 7, "L", "R")
+row_searcher = Searcher(0, 0, 127, "F", "B")
 
 
 def generate_id(search_string):
-    row = search_row(search_string)
-    column = search_column(search_string)
+    row = row_searcher.search(search_string)
+    column = column_searcher.search(search_string)
     id = (row*8)+column
     return id
 
@@ -64,22 +62,22 @@ def generate_id(search_string):
 class DayThreeTests(unittest.TestCase):
 
     def test_column_tree_can_search_row_F(self):
-        column_result = search_row("FFFFFFF")
+        column_result = row_searcher.search("FFFFFFF")
         self.assertEqual(column_result, 0)
 
     def test_column_tree_can_search_row_one_B(self):
-        column_result = search_row("FFFFFFB")
+        column_result = row_searcher.search("FFFFFFB")
         self.assertEqual(column_result, 1)
 
     def test_example_input_for_rows(self):
-        self.assertEqual(search_row("BFFFBBFRRR"), 70)
-        self.assertEqual(search_row("FFFBBBFRRR"), 14)
-        self.assertEqual(search_row("BBFFBBFRLL"), 102)
+        self.assertEqual(row_searcher.search("BFFFBBFRRR"), 70)
+        self.assertEqual(row_searcher.search("FFFBBBFRRR"), 14)
+        self.assertEqual(row_searcher.search("BBFFBBFRLL"), 102)
 
     def test_example_input_for_columns(self):
-        self.assertEqual(search_column("BFFFBBFRRR"), 7)
-        self.assertEqual(search_column("FFFBBBFRRR"), 7)
-        self.assertEqual(search_column("BBFFBBFRLL"), 4)
+        self.assertEqual(column_searcher.search("BFFFBBFRRR"), 7)
+        self.assertEqual(column_searcher.search("FFFBBBFRRR"), 7)
+        self.assertEqual(column_searcher.search("BBFFBBFRLL"), 4)
 
     def test_example_input_for_unique_id(self):
         self.assertEqual(generate_id("BFFFBBFRRR"), 567)
