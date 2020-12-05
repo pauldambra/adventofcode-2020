@@ -93,6 +93,22 @@ class DayThreeTests(unittest.TestCase):
         max_seat_id = max(seat_ids)
         self.assertEqual(max_seat_id, 878)
 
+    def test_puzzle_input_part_two(self):
+        with open(get_puzzle_input_path()) as content:
+            ss = content.read().split("\n")
+        seat_ids = [generate_id(s) for s in ss]
+        sorted_seat_ids = sorted(seat_ids)
+
+        candidates = []
+        for index in range(1, len(sorted_seat_ids)):
+            current = sorted_seat_ids[index]
+            previous = sorted_seat_ids[index-1]
+            if current - previous != 1:
+                candidates.append(current-1)
+
+        my_seat = candidates[0]
+        self.assertEqual(my_seat, 504)
+
 
 if __name__ == '__main__':
     unittest.main()
