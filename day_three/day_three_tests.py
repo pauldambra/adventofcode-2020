@@ -2,6 +2,12 @@ import unittest
 from dataclasses import dataclass
 from functools import reduce
 import operator
+import os
+
+
+def get_puzzle_input_path():
+    dirname = os.path.dirname(__file__)
+    return os.path.join(dirname, 'puzzle_input.txt')
 
 
 @dataclass
@@ -105,7 +111,7 @@ class DayThreeTests(unittest.TestCase):
             7)
 
     def test_puzzle_input(self):
-        with open('puzzle_input.txt') as content:
+        with open(get_puzzle_input_path()) as content:
             map = [line.rstrip() for line in content]
         map_encounters = walk_the_map(map)
         trees_encountered = sum(
@@ -139,7 +145,7 @@ class DayThreeTests(unittest.TestCase):
         self.assertEqual(reduce(operator.mul, different_slopes), 336)
 
     def test_puzzle_input_part_two(self):
-        with open('puzzle_input.txt') as content:
+        with open(get_puzzle_input_path()) as content:
             map = [line.rstrip() for line in content]
         different_slopes = [
             count_trees_encountered(map, 1, 1),

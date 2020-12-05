@@ -1,5 +1,11 @@
 import unittest
 import re
+import os
+
+
+def get_puzzle_input_path():
+    dirname = os.path.dirname(__file__)
+    return os.path.join(dirname, 'puzzle_input.txt')
 
 
 class PartTwoValidator(object):
@@ -242,7 +248,7 @@ iyr:2011 ecl:brn hgt:59in
         self.assertEqual(len(valid_passports), 2)
 
     def test_read_passwords_from_puzzle_input(self):
-        with open('puzzle_input.txt') as content:
+        with open(get_puzzle_input_path()) as content:
             ss = content.read()
         passports = parse(ss)
         valid_passports = [p for p in passports if is_valid_passport(p)]
@@ -321,7 +327,7 @@ pid:3556412378 byr:2007
         self.assertEqual(len(valid_passports), 0)
 
     def test_read_passwords_from_puzzle_input_part_two(self):
-        with open('puzzle_input.txt') as content:
+        with open(get_puzzle_input_path()) as content:
             ss = content.read()
         passports = parse(ss)
         valid_passports = [

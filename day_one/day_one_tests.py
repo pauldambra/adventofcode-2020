@@ -1,5 +1,11 @@
 import unittest
 from itertools import combinations
+import os
+
+
+def get_puzzle_input_path():
+    dirname = os.path.dirname(__file__)
+    return os.path.join(dirname, 'puzzle_input.txt')
 
 
 def combination_that_sums_2020(ns, length):
@@ -30,7 +36,7 @@ class DayOneTests(unittest.TestCase):
         self.assertEqual(candidate[0] * candidate[1], 514579)
 
     def test_puzzle_input_combinations_part_one(self):
-        expenses = read_numbers_from_file('puzzle_input.txt')
+        expenses = read_numbers_from_file(get_puzzle_input_path())
 
         candidate = combination_that_sums_2020(expenses, 2)
 
@@ -51,7 +57,7 @@ class DayOneTests(unittest.TestCase):
             241861950)
 
     def test_puzzle_input_combinations_part_two(self):
-        expenses = read_numbers_from_file('puzzle_input.txt')
+        expenses = read_numbers_from_file(get_puzzle_input_path())
 
         candidate = combination_that_sums_2020(expenses, 3)
 

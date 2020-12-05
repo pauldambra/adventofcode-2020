@@ -1,5 +1,11 @@
 import unittest
 import re
+import os
+
+
+def get_puzzle_input_path():
+    dirname = os.path.dirname(__file__)
+    return os.path.join(dirname, 'puzzle_input.txt')
 
 
 def ruleFrom(s):
@@ -87,7 +93,7 @@ class DayTwoTests(unittest.TestCase):
         self.assertTrue(passwordIsValid(password, rule))
 
     def test_valid_passwords_puzzle_input(self):
-        policyExamples = read_from_file('puzzle_input.txt')
+        policyExamples = read_from_file(get_puzzle_input_path())
         validPasswords = checkPasswordValidity(policyExamples)
         self.assertEqual(len(validPasswords), 536)
 
@@ -125,7 +131,7 @@ class DayTwoTests(unittest.TestCase):
         self.assertFalse(result)
 
     def test_valid_passwords_puzzle_input_part_two(self):
-        policyExamples = read_from_file('puzzle_input.txt')
+        policyExamples = read_from_file(get_puzzle_input_path())
         validPasswords = checkPasswordValidityPartTwo(policyExamples)
         self.assertLess(len(validPasswords), 786)
         self.assertEqual(len(validPasswords), 558)
