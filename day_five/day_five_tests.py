@@ -1,3 +1,4 @@
+from files.reader import get_puzzle_input_path
 import unittest
 import math
 import os
@@ -43,11 +44,6 @@ class Searcher:
             return next_searcher.search(search_string)
 
 
-def get_puzzle_input_path():
-    dirname = os.path.dirname(__file__)
-    return os.path.join(dirname, 'puzzle_input.txt')
-
-
 column_searcher = Searcher(7, 0, 7, "L", "R")
 row_searcher = Searcher(0, 0, 127, "F", "B")
 
@@ -85,14 +81,14 @@ class DayThreeTests(unittest.TestCase):
         self.assertEqual(generate_id("BBFFBBFRLL"), 820)
 
     def test_puzzle_input_part_one(self):
-        with open(get_puzzle_input_path()) as content:
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
             ss = content.read().split("\n")
         seat_ids = [generate_id(s) for s in ss]
         max_seat_id = max(seat_ids)
         self.assertEqual(max_seat_id, 878)
 
     def test_puzzle_input_part_two(self):
-        with open(get_puzzle_input_path()) as content:
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
             ss = content.read().split("\n")
         seat_ids = [generate_id(s) for s in ss]
         sorted_seat_ids = sorted(seat_ids)

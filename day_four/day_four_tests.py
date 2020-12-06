@@ -1,11 +1,7 @@
+from files.reader import get_puzzle_input_path, split_grouped_input
 import unittest
 import re
 import os
-
-
-def get_puzzle_input_path():
-    dirname = os.path.dirname(__file__)
-    return os.path.join(dirname, 'puzzle_input.txt')
 
 
 class PartTwoValidator(object):
@@ -182,31 +178,12 @@ class byr(object):
         return f"byr: {self.value}"
 
 
-def split_input(input):
-    unparse_passports = []
-    current = []
-    for line in input.splitlines():
-        if len(line) > 0:
-            current.append(line.strip())
-        else:
-            if len(current) == 0:
-                pass
-            else:
-                unparse_passports.append(current)
-                current = []
-
-    if len(current) > 0:
-        unparse_passports.append(current)
-
-    return [" ".join(x).strip() for x in unparse_passports]
-
-
 def parse_passport_string(s):
     return dict(x.split(":") for x in s.split(" "))
 
 
 def parse(input):
-    unparsed_passports = split_input(input)
+    unparsed_passports = split_grouped_input(input)
     parsed_passports = [parse_passport_string(s) for s in unparsed_passports]
     return parsed_passports
 
@@ -248,7 +225,7 @@ iyr:2011 ecl:brn hgt:59in
         self.assertEqual(len(valid_passports), 2)
 
     def test_read_passwords_from_puzzle_input(self):
-        with open(get_puzzle_input_path()) as content:
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
             ss = content.read()
         passports = parse(ss)
         valid_passports = [p for p in passports if is_valid_passport(p)]
@@ -327,7 +304,7 @@ pid:3556412378 byr:2007
         self.assertEqual(len(valid_passports), 0)
 
     def test_read_passwords_from_puzzle_input_part_two(self):
-        with open(get_puzzle_input_path()) as content:
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
             ss = content.read()
         passports = parse(ss)
         valid_passports = [
