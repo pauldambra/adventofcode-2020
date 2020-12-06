@@ -5,8 +5,8 @@ def get_puzzle_input_path(dirname: str):
     return os.path.join(dirname, 'puzzle_input.txt')
 
 
-def split_grouped_input(input):
-    unparse_passports = []
+def split_groups(input: str):
+    groups = []
     current = []
     for line in input.splitlines():
         if len(line) > 0:
@@ -15,10 +15,14 @@ def split_grouped_input(input):
             if len(current) == 0:
                 pass
             else:
-                unparse_passports.append(current)
+                groups.append(current)
                 current = []
 
     if len(current) > 0:
-        unparse_passports.append(current)
+        groups.append(current)
 
-    return [" ".join(x).strip() for x in unparse_passports]
+    return groups
+
+
+def split_grouped_input(input: str):
+    return [" ".join(x).strip() for x in split_groups(input)]

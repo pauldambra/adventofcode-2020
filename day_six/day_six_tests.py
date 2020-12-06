@@ -1,5 +1,5 @@
 import os
-from files.reader import get_puzzle_input_path, split_grouped_input
+from files.reader import get_puzzle_input_path, split_groups
 import unittest
 
 example_input = """
@@ -25,13 +25,14 @@ def prepare_group(s: str):
     return list(s.replace(" ", ""))
 
 
-def parse_groups(puzzle_input: str):
-    return [prepare_group(s) for s
-            in split_grouped_input(puzzle_input)]
+def prepare_groups_for_part_one(groups):
+    flattened_answers = [" ".join(x).strip() for x in groups]
+    return [prepare_group(s) for s in flattened_answers]
 
 
-def uniquify(groups):
-    return [sorted(list(set(g))) for g in groups]
+def any_yes(groups):
+    prepared_answers = prepare_groups_for_part_one(groups)
+    return [sorted(list(set(g))) for g in prepared_answers]
 
 
 def sum_counts(groups):
@@ -41,24 +42,24 @@ def sum_counts(groups):
 class DaySixTests(unittest.TestCase):
 
     def test_can_read_groups(self):
-        groups = parse_groups(example_input)
+        groups = split_groups(example_input)
         self.assertEqual(groups, [
+            ["abc"],
             ["a", "b", "c"],
-            ["a", "b", "c"],
-            ["a", "b", "a", "c"],
+            ["ab", "ac"],
             ["a", "a", "a", "a"],
             ["b"]
         ])
 
-    def test_can_uniquify_groups(self):
+    def test_can_any_yes_groups(self):
         groups = [
+            ["abc"],
             ["a", "b", "c"],
-            ["a", "b", "c"],
-            ["a", "b", "a", "c"],
+            ["ab", "ac"],
             ["a", "a", "a", "a"],
             ["b"]
         ]
-        uniquified = uniquify(groups)
+        uniquified = any_yes(groups)
         self.assertEqual(uniquified, [
             ["a", "b", "c"],
             ["a", "b", "c"],
@@ -81,5 +82,5 @@ class DaySixTests(unittest.TestCase):
     def test_sum_counts_for_puzzle_input(self):
         with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
             ss = content.read()
-        sum_of_counts = sum_counts(uniquify(parse_groups(ss)))
+        sum_of_counts = sum_counts(any_yes(split_groups(ss)))
         self.assertEqual(sum_of_counts, 6686)
