@@ -118,4 +118,4 @@ class DaySixTests(unittest.TestCase):
         with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
             ss = content.read()
         sum_of_counts = sum_counts(everyone_yes(split_groups(ss)))
-        self.assertEqual(sum_of_counts, 6686)
+        self.assertEqual(sum_of_counts, 3476)
