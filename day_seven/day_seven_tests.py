@@ -25,12 +25,19 @@ class Bag:
 
     def __init__(self, colour):
         self.colour = colour
-        self.contained_bags = set()
+        self.can_contain_bags: typing.Dict[Bag, int] = {}
         self.can_be_contained_by_bags = set()
 
-    def contains(self, bag: Bag):
-        self.contained_bags.add(bag)
+    def contains(self, bag: Bag, number_contained: int = 1):
+        if bag in self.can_contain_bags:
+            new_count = self.can_contain_bags[bag] + number_contained
+        else:
+            new_count = number_contained
+        self.can_contain_bags[bag] = new_count
         bag.can_be_contained_by(self)
+
+    def contained_bags(self) -> set:
+        return frozenset(self.can_contain_bags)
 
     def can_be_contained_by(self, bag):
         self.can_be_contained_by_bags.add(bag)
@@ -42,6 +49,14 @@ class Bag:
             bs.update(bag.can_be_in())
 
         return frozenset(bs)
+
+    def count_children(self):
+        count = 0
+        for child_bag, child_count in self.can_contain_bags.items():
+            count += child_count
+            count += child_count * child_bag.count_children()
+
+        return count
 
     def __repr__(self) -> str:
         return f"Bag: {self.colour}"
@@ -62,23 +77,29 @@ class Bag:
         for x in ss.splitlines():
             s = x.strip()
             if s:
-                print(f"'{s}'")
                 parent = s.split("bags contain")[0].strip()
                 if parent not in bags:
                     bags[parent] = Bag(parent)
 
-                children = [
-                    pattern.sub("", x.strip().strip('.')
-                                .strip('bag').strip('bags').strip())
+                uncounted_children = [
+                    x.strip().strip('.')
+                    .strip('bag').strip('bags').strip()
                     for x
                     in s.split("bags contain")[1].split(",")
                 ]
-                for child in children:
-                    if child != "no other":
-                        if child not in bags:
-                            bags[child] = Bag(child)
+                counted_children = []
+                for uncounted in uncounted_children:
+                    if uncounted != "no other":
+                        parts = uncounted.split(" ", 1)
+                        count = int(parts[0].strip())
+                        child = parts[1].strip()
+                        counted_children.append([count, child])
 
-                        bags[parent].contains(bags[child])
+                for count, child in counted_children:
+                    if child not in bags:
+                        bags[child] = Bag(child)
+
+                    bags[parent].contains(bags[child], count)
 
         return bags
 
@@ -141,7 +162,7 @@ class DaySevenTests(unittest.TestCase):
         light_red.contains(muted_yellow)
         light_red.contains(muted_yellow)
         self.assertEqual(muted_yellow.can_be_in(), frozenset([light_red]))
-        self.assertEqual(light_red.contained_bags, set([muted_yellow]))
+        self.assertEqual(light_red.contained_bags(), set([muted_yellow]))
 
     def test_one_bag_can_contain_nested_bags_several_levels(self):
         """
@@ -199,7 +220,7 @@ class DaySevenTests(unittest.TestCase):
             'muted yellow': Bag('muted yellow'),
             'blue': Bag('blue')
         })
-        self.assertEqual(bags['light red'].contained_bags,
+        self.assertEqual(bags['light red'].contained_bags(),
                          set([
                              Bag('bright white'),
                              Bag('muted yellow'),
@@ -218,7 +239,7 @@ class DaySevenTests(unittest.TestCase):
             'bright white': Bag('bright white'),
             'muted yellow': Bag('muted yellow')
         })
-        self.assertEqual(bags['light red'].contained_bags,
+        self.assertEqual(bags['light red'].contained_bags(),
                          set([
                              Bag('bright white'),
                              Bag('muted yellow')
@@ -241,3 +262,69 @@ class DaySevenTests(unittest.TestCase):
         can_hold_gold = bags['shiny gold'].can_be_in()
 
         self.assertEqual(len(can_hold_gold), 246)
+
+    def test_can_count_children_bags(self):
+        """
+            light red:
+                muted yellow
+        """
+        muted_yellow = Bag("muted yellow")
+        light_red = Bag("light red")
+        light_red.contains(muted_yellow)
+
+        self.assertEqual(light_red.count_children(), 1)
+
+    def test_can_count_nested_children_bags(self):
+        """
+            light red:
+                muted yellow:
+                    green
+        """
+        muted_yellow = Bag("muted yellow")
+        light_red = Bag("light red")
+        green = Bag("green")
+        light_red.contains(muted_yellow)
+        muted_yellow.contains(green)
+        self.assertEqual(light_red.count_children(), 2)
+
+    def test_can_count_varying_numbers_of_children_bags(self):
+        """
+            light red:
+                2 x muted yellow:
+                    4 X green
+
+            so light red contains 2 muted yellow
+            and each of those contain 4 other bags
+            for a total of 10
+        """
+        muted_yellow = Bag("muted yellow")
+        light_red = Bag("light red")
+        green = Bag("green")
+        light_red.contains(muted_yellow, 2)
+        muted_yellow.contains(green, 4)
+        self.assertEqual(light_red.count_children(), 10)
+
+    def test_part_two_example_one(self):
+        example_one_part_two = """
+shiny gold bags contain 2 dark red bags.
+dark red bags contain 2 dark orange bags.
+dark orange bags contain 2 dark yellow bags.
+dark yellow bags contain 2 dark green bags.
+dark green bags contain 2 dark blue bags.
+dark blue bags contain 2 dark violet bags.
+dark violet bags contain no other bags.
+"""
+        bags = Bag.parse(example_one_part_two)
+
+        gold_contains = bags['shiny gold'].count_children()
+
+        self.assertEqual(gold_contains, 126)
+
+    def test_puzzle_input_part_two(self):
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
+            ss = content.read()
+        bags = Bag.parse(ss)
+
+        gold_contains = bags['shiny gold'].count_children()
+
+        self.assertEqual(gold_contains, 2976)
