@@ -2,7 +2,6 @@ from __future__ import annotations
 import os
 import typing
 import unittest
-import re
 from files.reader import get_puzzle_input_path
 
 example_input = """
@@ -72,7 +71,6 @@ class Bag:
     @staticmethod
     def parse(ss) -> typing.Dict[str, Bag]:
         bags: typing.Dict[str, Bag] = {}
-        pattern = re.compile(r"^\d+ ")
 
         for x in ss.splitlines():
             s = x.strip()
