@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Literal
 import unittest
 import os
 from files.reader import get_puzzle_input_path
