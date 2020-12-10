@@ -2,20 +2,7 @@ import os
 import unittest
 import itertools
 from files.reader import get_puzzle_input_path
-
-
-def window(seq, n=2):
-    """from https://stackoverflow.com/a/6822773/222163
-    Returns a sliding window (of width n) over data from the iterable
-       s -> (s0,s1,...s[n-1]), (s1,s2,...,sn), ...
-       """
-    it = iter(seq)
-    result = tuple(itertools.islice(it, n))
-    if len(result) == n:
-        yield result
-    for elem in it:
-        result = result[1:] + (elem,)
-        yield result
+import data.sliding
 
 
 def get_valid_numbers_from_preamble(preamble):
@@ -30,7 +17,7 @@ def seek_first_invalid_number(s: str, preamble_length: int):
     input = [int(line.strip())
              for line in s.splitlines()
              if line and len(line.strip()) > 0]
-    windows = window(input, preamble_length+1)
+    windows = data.sliding.window(input, preamble_length+1)
 
     for w in windows:
         preamble = w[:preamble_length]
@@ -53,7 +40,7 @@ def find_encryption_weakness(i: str, invalid_number: int):
 
     match = ()
     for i in range(2, len(ns)):
-        for x in window(ns, i):
+        for x in data.sliding.window(ns, i):
             if sum(x) == invalid_number:
                 match = x
 
@@ -66,7 +53,7 @@ class DayNineTests(unittest.TestCase):
 
     def test_can_window(self):
         ss = [1, 2, 3, 4, 5, 6, 7, 8]
-        windows = list(window(ss, 3))
+        windows = list(data.sliding.window(ss, 3))
         self.assertEqual(
             windows,
             [(1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6), (5, 6, 7), (6, 7, 8)])
