@@ -65,3 +65,21 @@ class DayTenTests(unittest.TestCase):
 
         self.assertEqual(seen_joltage_steps, {1: 73, 3: 31})
         self.assertEqual(seen_joltage_steps[1] * seen_joltage_steps[3], 2263)
+
+#     def test_can_count_possible_arrangements(self):
+#         adapters = """
+#         16
+# 10
+# 15
+# 5
+# 1
+# 11
+# 7
+# 19
+# 6
+# 12
+# 4
+#         """.splitlines()
+#         possible_arrangements = count_possible_organisations_of_plugs(adapters)
+
+#         self.assertEqual(possible_arrangements, 8)
