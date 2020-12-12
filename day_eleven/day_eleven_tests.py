@@ -1,79 +1,7 @@
+from day_eleven.travel import Grid, LineOfSightAdjacentSeats
 import os
 import unittest
 from files.reader import get_puzzle_input_path
-
-
-class Grid:
-
-    def __init__(self, grid_description: str) -> None:
-        try:
-            self.grid_description = grid_description.strip()
-        except AttributeError as ae:
-            print(f"could not strip description: {grid_description}")
-            raise ae
-
-        self.rows = [line.strip() for line
-                     in grid_description.splitlines()
-                     if line and len(line.strip()) > 0]
-        self.height = len(self.rows)
-        self.width = len(self.rows[0])
-
-    def get(self, x: int, y: int) -> str:
-        if x < 0 or y < 0:
-            return None
-
-        if x >= self.width or y >= self.height:
-            return None
-
-        row = self.rows[y]
-        return row[x]
-
-    def adjacent_to(self, x: int, y: int) -> list[str]:
-        return [c for c in [
-            self.get(x - 1, y),
-            self.get(x - 1, y - 1),
-            self.get(x, y - 1),
-            self.get(x + 1, y - 1),
-            self.get(x + 1, y),
-            self.get(x + 1, y + 1),
-            self.get(x, y + 1),
-            self.get(x - 1, y + 1)
-        ] if c]
-
-    def tick(self):
-        copied = list(map(list, self.rows))
-
-        for x in range(0, self.width):
-            for y in range(0, self.height):
-                seat = self.get(x, y)
-                adjacents = self.adjacent_to(x, y)
-                if seat == 'L':
-                    if not any(x == '#' for x in adjacents):
-                        copied[y][x] = '#'
-                    #     print(f"""
-                    # adjacents: {adjacents}
-                    # seat: {seat}
-                    # now: {copied[y][x]}
-                    # """)
-                elif seat == '#':
-                    if adjacents.count('#') >= 4:
-                        copied[y][x] = 'L'
-
-        described_rows = [''.join(x) for x in copied]
-        description = '\n'.join(described_rows)
-        return Grid(description)
-
-    def occupied_seats(self) -> int:
-        return self.grid_description.count('#')
-
-    def __hash__(self):
-        return self.grid_description.__hash__()
-
-    def __eq__(self, o: object) -> bool:
-        return self.grid_description == o.grid_description
-
-    def __repr__(self) -> str:
-        return self.grid_description
 
 
 example_input = """
@@ -126,35 +54,46 @@ class DayElevenTests(unittest.TestCase):
         grid = Grid(example_input)
         next_grid = grid.tick()
 
+# pep 8 putting spaces in the grid defined below
+# cos it looked like a comment to the linter
+# autopep8: off
         expected = Grid("""#.##.##.##
-#######.##
-#.#.#..#..
-####.##.##
-#.##.##.##
-#.#####.##
-..#.#.....
-##########
-#.######.#
-#.#####.##""").grid_description
+                        #######.##
+                        #.#.#..#..
+                        ####.##.##
+                        #.##.##.##
+                        #.#####.##
+                        ..#.#.....
+                        ##########
+                        #.######.#
+                        #.#####.##""")
+        # autopep8: on
 
-        actual = next_grid.grid_description
+        actual = next_grid
 
-        self.assertMultiLineEqual(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_can_model_a_second_round(self):
         grid = Grid(example_input)
         next_grid = grid.tick().tick()
-        self.assertMultiLineEqual(next_grid.grid_description, Grid("""
-        #.LL.L#.##
-#LLLLLL.L#
-L.L.L..L..
-#LLL.LL.L#
-#.LL.LL.LL
-#.LLLL#.##
-..L.L.....
-#LLLLLLLL#
-#.LLLLLL.L
-#.#LLLL.##""").grid_description)
+
+# pep 8 putting spaces in the grid defined below
+# cos it looked like a comment to the linter
+# autopep8: off
+        expected = Grid("""
+                        #.LL.L#.##
+                        #LLLLLL.L#
+                        L.L.L..L..
+                        #LLL.LL.L#
+                        #.LL.LL.LL
+                        #.LLLL#.##
+                        ..L.L.....
+                        #LLLLLLLL#
+                        #.LLLLLL.L
+                        #.#LLLL.##""")
+# autopep8: on
+
+        self.assertEqual(next_grid, expected)
 
     def test_can_stabilise_after_some_ticks(self):
         grid = Grid(example_input)
@@ -184,3 +123,53 @@ L.L.L..L..
             next_grid = next_grid.tick()
 
         self.assertEqual(next_grid.occupied_seats(), 2412)
+
+    def test_can_find_adjacent_seats_by_ignoring_space(self):
+        grid = Grid("""
+.......#.
+...#.....
+.#.......
+.........
+..#L....#
+....#....
+.........
+# ........
+...#.....
+        """)
+
+        self.assertEqual(grid.get(3, 4), 'L')
+        adjacent_seats = LineOfSightAdjacentSeats.find(grid, 3, 4)
+        self.assertEqual(adjacent_seats, [
+                         '#', '#', '#', '#', '#', '#', '#', '#'])
+
+    def test_can_find_adjacent_seats_second_example(self):
+        grid = Grid("""
+.............
+.L.L.#.#.#.#.
+.............
+        """)
+
+        self.assertEqual(grid.get(1, 1), 'L')
+        adjacent_seats = LineOfSightAdjacentSeats.find(grid, 1, 1)
+        self.assertEqual(adjacent_seats, ['L'])
+
+    def test_occupied_seats_when_map_stabilises_part_two(self):
+        grid = Grid(example_input, LineOfSightAdjacentSeats, 5)
+        next_grid = grid.tick()
+        while grid != next_grid:
+            grid = next_grid
+            next_grid = next_grid.tick()
+
+        self.assertEqual(next_grid.occupied_seats(), 26)
+
+    def test_occupied_seats_after_puzzle_input_stabilizes_part_two(self):
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
+            puzzle_input = content.read()
+
+        grid = Grid(puzzle_input, LineOfSightAdjacentSeats, 5)
+        next_grid = grid.tick()
+        while grid != next_grid:
+            grid = next_grid
+            next_grid = next_grid.tick()
+
+        self.assertEqual(next_grid.occupied_seats(), 2176)
