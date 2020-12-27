@@ -1,0 +1,16 @@
+
+kpython:S1542"NRename function "ruleFrom" to match the regular expression ^[a-z_][a-z0-9_]*$.(Π”ώÿÿÿÿ
+npython:S1542"VRename function "partTwoRulesFrom" to match the regular expression ^[a-z_][a-z0-9_]*$.(θμΆ°
+opython:S1542)"RRename function "passwordFrom" to match the regular expression ^[a-z_][a-z0-9_]*$.(³ζϊ½ÿÿÿÿÿ
+mpython:S1542."URename function "passwordIsValid" to match the regular expression ^[a-z_][a-z0-9_]*$.(Υΰ¬”
+tpython:S15423"\Rename function "passwordIsValidPartTwo" to match the regular expression ^[a-z_][a-z0-9_]*$.(υΓ 
+spython:S15428"[Rename function "checkPasswordValidity" to match the regular expression ^[a-z_][a-z0-9_]*$.(“¬υτ
+python:S1542>"bRename function "checkPasswordValidityPartTwo" to match the regular expression ^[a-z_][a-z0-9_]*$.(ϊϋιÿÿÿÿÿ
+{python:S117L"_Rename this local variable "policyExamples" to match the regular expression ^[_a-z][a-z0-9_]*$.(εξª”όÿÿÿÿ
+{python:S117M"_Rename this local variable "validPasswords" to match the regular expression ^[_a-z][a-z0-9_]*$.(¤Β‹βϊÿÿÿÿ
+vpython:S117Q"_Rename this local variable "policyExamples" to match the regular expression ^[_a-z][a-z0-9_]*$.(Βψ«΄
+{python:S117R"_Rename this local variable "validPasswords" to match the regular expression ^[_a-z][a-z0-9_]*$.(¤Β‹βϊÿÿÿÿ
+vpython:S117\"_Rename this local variable "policyExamples" to match the regular expression ^[_a-z][a-z0-9_]*$.(ΉΠώ‡
+{python:S117^"_Rename this local variable "validPasswords" to match the regular expression ^[_a-z][a-z0-9_]*$.(¤Β‹βϊÿÿÿÿ
+wpython:S117ƒ"_Rename this local variable "policyExamples" to match the regular expression ^[_a-z][a-z0-9_]*$.(ΉΠώ‡
+wpython:S117…"_Rename this local variable "validPasswords" to match the regular expression ^[_a-z][a-z0-9_]*$.(Ή…¨

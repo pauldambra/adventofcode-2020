@@ -1,0 +1,10 @@
+
+lpython:S1192¿"NDefine a constant instead of duplicating this literal 'muted yellow' 10 times.(Èà¬Öùÿÿÿÿ
+6python:S125k"Remove this commented out code.(¨ŸáÄ
+lpython:S1192¾"NDefine a constant instead of duplicating this literal 'bright white' 10 times.(œ§ùÖøÿÿÿÿ
+dpython:S1192û"KDefine a constant instead of duplicating this literal 'shiny gold' 4 times.(’®ù›
+zpython:S5886'"bReturn a value of type "set" instead of "frozenset" or update function "contained_bags" type hint.(âƒÕè
+ipython:S1192½"KDefine a constant instead of duplicating this literal 'light red' 10 times.(Ôìã²ûÿÿÿÿ
+bpython:S1192x"JDefine a constant instead of duplicating this literal "light red" 8 times.(ãœ¥
+lpython:S3776H"TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(¦šˆĞ
+epython:S1192w"MDefine a constant instead of duplicating this literal "muted yellow" 8 times.(øÆåÖ

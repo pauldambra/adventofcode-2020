@@ -1,0 +1,14 @@
+
+gpython:S1192@"ODefine a constant instead of duplicating this literal "#.#.#.\n.#.#.#" 4 times.(µÁºÿ
+Hpython:S5806""+Rename this variable; it shadows a builtin.(©Ì¯Øûÿÿÿÿ
+Cpython:S58062"+Rename this variable; it shadows a builtin.(Ñ®Å
+Cpython:S5806:"+Rename this variable; it shadows a builtin.(Ñ®Å
+Cpython:S5806@"+Rename this variable; it shadows a builtin.(µÁºÿ
+Cpython:S5806F"+Rename this variable; it shadows a builtin.(µÁºÿ
+Cpython:S5806L"+Rename this variable; it shadows a builtin.(µÁºÿ
+Cpython:S5806R"+Rename this variable; it shadows a builtin.(µÁºÿ
+Cpython:S5806W"+Rename this variable; it shadows a builtin.(Úšı‚
+Cpython:S5806]"+Rename this variable; it shadows a builtin.(ßİ³µ
+Hpython:S5806o"+Rename this variable; it shadows a builtin.(ë¡Ø ûÿÿÿÿ
+Cpython:S5806x"+Rename this variable; it shadows a builtin.(ßİ³µ
+Ipython:S5806‘"+Rename this variable; it shadows a builtin.(ë¡Ø ûÿÿÿÿ
