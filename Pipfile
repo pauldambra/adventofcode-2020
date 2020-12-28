@@ -8,6 +8,7 @@ nose = "*"
 pylint = "*"
 flake8 = "*"
 pep8 = "*"
+parameterized = "*"
 
 [requires]
 python_version = "3.9"
