@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import math
+
 from files.reader import get_puzzle_input_path
 import unittest
 from dataclasses import dataclass
@@ -22,6 +25,19 @@ nearby tickets:
 38,6,12
 """
 
+part_two_example_input = """
+class: 0-1 or 4-19
+row: 0-5 or 8-19
+seat: 0-13 or 16-19
+
+your ticket:
+11,12,13
+
+nearby tickets:
+3,9,18
+15,1,5
+5,14,9
+"""
 
 class Predicate:
     pass
@@ -93,24 +109,32 @@ class DefaultSpecification(Specification):
 def parse_input(i: str):
     specs = []
     nearby = []
+
     reading_rules = True
+    reading_own = False
     reading_nearby = False
     for line in [cs.strip() for cs in i.splitlines() if len(cs.strip()) > 0]:
-        if (line == "your ticket:"):
+        if line == "your ticket:":
             reading_rules = False
+            reading_own = True
+
+        if line == "nearby tickets:":
+            reading_nearby = True
+            reading_own = False
+
+        if reading_own and line != "your ticket:":
+            own = [int(x) for x in line.split(',')]
 
         if reading_rules:
             specs.append(TwoRangesSpecification.parse(line))
 
-        if reading_nearby:
+        if reading_nearby and line != "nearby tickets:":
             nearby.append([int(x) for x in line.split(',')])
-
-        if (line == "nearby tickets:"):
-            reading_nearby = True
 
     return {
         'rules': specs,
-        'nearby_tickets': nearby
+        'nearby_tickets': nearby,
+        'own_ticket': own
     }
 
 
@@ -127,7 +151,64 @@ def check_ticket(values):
     return invalid_ticket_fields
 
 
+def get_valid_tickets(values):
+    spec_chain = Any(values['rules'])
+    valid_tickets = []
+    for ticket in values['nearby_tickets']:
+        has_invalid = len([
+            field for field
+            in ticket
+            if not spec_chain.matches(field)
+        ]) > 0
+        if not has_invalid:
+            valid_tickets.append(ticket)
+
+    return valid_tickets
+
+
 def flatten(t): return [item for sublist in t for item in sublist]
+
+
+def map_fields(valids, rules):
+    candidates = []
+    number_of_fields = len(rules)
+    matched_positions = []
+    matched_specs = []
+
+    while len(candidates) < number_of_fields:
+        # print(f"running because candidates length is {len(candidates)}")
+        # print(candidates)
+
+        for position in range(0, number_of_fields):
+            if position in matched_positions:
+                # print(f"skipping position {position}")
+                continue
+
+            column = [ticket[position] for ticket in valids]
+            position_candidates = []
+
+            for spec in rules:
+                if spec.name in matched_specs:
+                    # print(f"skipping matched spec {spec.name}")
+                    continue
+
+                could_be = [spec.matches(x) for x in column]
+                # print(f"for field {spec.name} and position {position} spec results were")
+                # print(could_be)
+                if all(could_be):
+                    position_candidates.append({
+                        'spec': spec.name,
+                        'position': position
+                    })
+
+            if len(position_candidates) == 1:
+                # print("matched a candidate")
+                # print(position_candidates)
+                candidates.append(position_candidates[0])
+                matched_specs.append(position_candidates[0]['spec'])
+                matched_positions.append(position_candidates[0]['position'])
+
+    return candidates
 
 
 class DaySixteenTests(unittest.TestCase):
@@ -240,3 +321,31 @@ class DaySixteenTests(unittest.TestCase):
             29019,
             sum(invalids)
         )
+
+    def test_something_part_two(self):
+        parts = parse_input(part_two_example_input)
+        valids = get_valid_tickets(parts)
+        print(valids)
+
+        candidates = map_fields(valids, parts['rules'])
+
+        print(candidates)
+        self.assertEqual(1, 2)
+
+    def test_something_part_two_puzzle_input(self):
+        with open(get_puzzle_input_path(os.path.dirname(__file__))) as content:
+            puzzle_input = content.read()
+
+        parts = parse_input(puzzle_input)
+        valids = get_valid_tickets(parts)
+
+        candidates = map_fields(valids, parts['rules'])
+
+        departure_fields = [f['position'] for f in candidates if f['spec'].startswith('departure')]
+
+        my_departure_fields = []
+        for departure_field in departure_fields:
+            my_departure_fields.append(parts['own_ticket'][departure_field])
+
+        departure_fields_product = math.prod(my_departure_fields)
+        self.assertEqual(517827547723, departure_fields_product)
