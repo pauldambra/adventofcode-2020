@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 from dataclasses import dataclass, replace
-from typing import Literal
+from typing import Literal, ClassVar
 from random import randint
 
 example_input = """
@@ -21,6 +21,7 @@ puzzle_input = """
 ..#####.
 ######.#
 """
+
 
 @dataclass(frozen=True)
 class Coordinate:
@@ -47,36 +48,41 @@ class FourDimensionalCoordinate(Coordinate):
     z: int
     w: int
 
-    def neighbours(self) -> list[ThreeDimensionalCoordinate]:
-        this_plane = [x(self) for x in self.neighbour_calculations]
-        this_plane_w1 = [replace(coord, w=coord.w - 1) for coord in this_plane]
-        this_plane_w2 = [replace(coord, w=coord.w + 1) for coord in this_plane]
-        second_plane = [replace(coord, z=coord.z - 1) for coord in this_plane]
-        second_plane_w1 = [replace(coord, w=coord.w - 1) for coord in second_plane]
-        second_plane_w2 = [replace(coord, w=coord.w + 1) for coord in second_plane]
-        third_plane = [replace(coord, z=coord.z + 1) for coord in this_plane]
-        third_plane_w1 = [replace(coord, w=coord.w - 1) for coord in third_plane]
-        third_plane_w2 = [replace(coord, w=coord.w + 1) for coord in third_plane]
+    calculated_neighbours: ClassVar[dict[Coordinate, list[Coordinate]]] = {}
 
-        results = []
-        results.extend(this_plane)
-        results.extend(this_plane_w1)
-        results.extend(this_plane_w2)
-        results.extend(second_plane)
-        results.extend(second_plane_w1)
-        results.extend(second_plane_w2)
-        results.extend(third_plane)
-        results.extend(third_plane_w1)
-        results.extend(third_plane_w2)
-        results.append(replace(self, w=self.w - 1))
-        results.append(replace(self, w=self.w + 1))
-        results.append(replace(self, z=self.z - 1))
-        results.append(replace(self, z=self.z - 1, w=self.w - 1))
-        results.append(replace(self, z=self.z - 1, w=self.w + 1))
-        results.append(replace(self, z=self.z + 1))
-        results.append(replace(self, z=self.z + 1, w=self.w - 1))
-        results.append(replace(self, z=self.z + 1, w=self.w + 1))
-        return results
+    def neighbours(self) -> list[ThreeDimensionalCoordinate]:
+        if self not in self.calculated_neighbours:
+            this_plane = [x(self) for x in self.neighbour_calculations]
+            this_plane_w1 = [replace(coord, w=coord.w - 1) for coord in this_plane]
+            this_plane_w2 = [replace(coord, w=coord.w + 1) for coord in this_plane]
+            second_plane = [replace(coord, z=coord.z - 1) for coord in this_plane]
+            second_plane_w1 = [replace(coord, w=coord.w - 1) for coord in second_plane]
+            second_plane_w2 = [replace(coord, w=coord.w + 1) for coord in second_plane]
+            third_plane = [replace(coord, z=coord.z + 1) for coord in this_plane]
+            third_plane_w1 = [replace(coord, w=coord.w - 1) for coord in third_plane]
+            third_plane_w2 = [replace(coord, w=coord.w + 1) for coord in third_plane]
+
+            results = []
+            results.extend(this_plane)
+            results.extend(this_plane_w1)
+            results.extend(this_plane_w2)
+            results.extend(second_plane)
+            results.extend(second_plane_w1)
+            results.extend(second_plane_w2)
+            results.extend(third_plane)
+            results.extend(third_plane_w1)
+            results.extend(third_plane_w2)
+            results.append(replace(self, w=self.w - 1))
+            results.append(replace(self, w=self.w + 1))
+            results.append(replace(self, z=self.z - 1))
+            results.append(replace(self, z=self.z - 1, w=self.w - 1))
+            results.append(replace(self, z=self.z - 1, w=self.w + 1))
+            results.append(replace(self, z=self.z + 1))
+            results.append(replace(self, z=self.z + 1, w=self.w - 1))
+            results.append(replace(self, z=self.z + 1, w=self.w + 1))
+            self.calculated_neighbours[self] = results
+
+        return self.calculated_neighbours[self]
 
 
 @dataclass(frozen=True)
@@ -101,9 +107,9 @@ class ThreeDimensionalCoordinate(Coordinate):
 
 @dataclass
 class PocketDimension:
-    coordinates: dict[ThreeDimensionalCoordinate, Literal['.', '#']]
+    coordinates: dict[Coordinate, Literal['.', '#']]
 
-    def get(self, coord: ThreeDimensionalCoordinate) -> Literal['.', '#']:
+    def get(self, coord: Coordinate) -> Literal['.', '#']:
         return self.__get(self.coordinates, coord)
 
     @staticmethod
@@ -136,9 +142,11 @@ class PocketDimension:
                 if len(active_neighbours) == 3:
                     self.coordinates[c] = '#'
 
+    def count_active(self):
+        return sum(1 for x in self.coordinates.values() if x == '#')
 
     @classmethod
-    def parse(cls, starting_state):
+    def __parse(cls, starting_state, coord_factory):
         rows = [
             x.strip() for x
             in starting_state.splitlines()
@@ -147,46 +155,24 @@ class PocketDimension:
         results: dict[ThreeDimensionalCoordinate, Literal['.', '#']] = {}
         for y, row in enumerate(rows):
             for x, col in enumerate(row):
-                results[ThreeDimensionalCoordinate(x, y, 0)] = col
+                coordinate = coord_factory(x, y)
+                results[coordinate] = col
 
         return PocketDimension(results)
 
-    def draw_plane(self, z: int) -> str:
-        plane = [c for c in self.coordinates.keys() if c.z == z]
-        min_y = min([c.y for c in plane])
-        max_y = max([c.y for c in plane])
-        min_x = min([c.x for c in plane])
-        max_x = max([c.x for c in plane])
-        drawing = ""
-        plane_extent = {
-            'min_x': min_x,
-            'max_x': max_x,
-            'min_y': min_y,
-            'max_y': max_y
-        }
-        print(plane_extent)
-        for y in range(min_y, max_y + 1):
-            for x in range(min_x, max_x + 1):
-                drawing += self.__get(self.coordinates, ThreeDimensionalCoordinate(x, y, z))
-            drawing += "\n"
-        return drawing
-
-    def count_active(self):
-        return sum(1 for x in self.coordinates.values() if x == '#')
+    @classmethod
+    def parse_3d(cls, starting_state):
+        return cls.__parse(
+            starting_state,
+            lambda x, y: ThreeDimensionalCoordinate(x, y, 0)
+        )
 
     @classmethod
     def parse_4d(cls, starting_state: str) -> PocketDimension:
-        rows = [
-            x.strip() for x
-            in starting_state.splitlines()
-            if len(x.strip()) > 0
-        ]
-        results: dict[FourDimensionalCoordinate, Literal['.', '#']] = {}
-        for y, row in enumerate(rows):
-            for x, col in enumerate(row):
-                results[FourDimensionalCoordinate(x, y, 0, 0)] = col
-
-        return PocketDimension(results)
+        return cls.__parse(
+            starting_state,
+            lambda x, y: FourDimensionalCoordinate(x, y, 0, 0)
+        )
 
 
 class DaySeventeenTests(unittest.TestCase):
@@ -252,7 +238,7 @@ class DaySeventeenTests(unittest.TestCase):
         )
 
     def test_can_parse_string_input_to_starting_coordinates(self):
-        pd = PocketDimension.parse(example_input)
+        pd = PocketDimension.parse_3d(example_input)
         self.assertEqual(
             '#',
             pd.get(ThreeDimensionalCoordinate(1, 0, 0))
@@ -276,27 +262,27 @@ class DaySeventeenTests(unittest.TestCase):
         ..#
         .#.
         """
-        pd = PocketDimension.parse(example_input)
+        pd = PocketDimension.parse_3d(example_input)
         pd.tick()
         self.assertEqual('#', pd.get(ThreeDimensionalCoordinate(0, 1, -1)))
         self.assertEqual(11, pd.count_active())
 
     def test_can_tick_thrice_from_example(self):
-        pd = PocketDimension.parse(example_input)
+        pd = PocketDimension.parse_3d(example_input)
         for _ in range(0, 3):
             pd.tick()
 
         self.assertEqual(38, pd.count_active())
 
     def test_can_tick_six_from_example(self):
-        pd = PocketDimension.parse(example_input)
+        pd = PocketDimension.parse_3d(example_input)
         for _ in range(0, 6):
             pd.tick()
 
         self.assertEqual(112, pd.count_active())
 
     def test_can_tick_six_for_part_one(self):
-        pd = PocketDimension.parse(puzzle_input)
+        pd = PocketDimension.parse_3d(puzzle_input)
         for _ in range(0, 6):
             pd.tick()
 
